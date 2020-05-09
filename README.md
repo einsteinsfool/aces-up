@@ -8,14 +8,18 @@ This script only works if you have:
 * Maximized KPatience window
 * Solver enabled in KPatience (Settings -> enable Solver)
 
-To run the script just type `python3 aces_up.py` in your terminal and quickly switch to KPatience. There are 2 possible options you can use to set conditions for terminating the script:
-* for setting the number of aces you expect to have in your initial deal: `aces=<number-of-aces>`. E.g.:
+To run the script just type `python3 aces_up.py` in your terminal and quickly switch to KPatience. There are 3 possible options you can use:
+* For setting the number of aces you expect to have in your initial deal: `aces=<number-of-aces>`. E.g.:
 
 ```python3 aces_up.py aces=2```
 
-* for getting all cards in the same suit: `suit`. E.g.:
+* For getting all cards in the same suit: `suit`. E.g.:
 
 ```python3 aces_up.py suit```
+
+* For setting the interval between deals: `interval=<time>` (default 1.6s because for 1.5s the solver once hasn't finished calculating the result for me). E.g.:
+
+```python3 aces_up.py interval=1.2```
 
 Probabilities
 -------------
@@ -46,4 +50,15 @@ So after putting the numbers in and multiplying the number of deals by 2 seconds
 * 1+ aces - 9 deals - 18 seconds
 * same suit - 282 deals - 9 minutes
 
-You can decrease the number of seconds per deal by changing `1.6` in `time.sleep(1.6)` to a smaller number. I tried 1.5s but once the solver hasn't finished calculating when 1.5s passed so I increased the time.
+You can decrease the number of seconds per deal by using the `interval` option.
+
+How it works
+------------
+
+I extracted fragments of each possible card in a deck and calculated MD5 sums of these fragments. Then I hardcoded them in my script and it compares MD5 sums of dealt cards with the hardcoded ones. I used fragments of cards, because using whole ones is redundant.
+
+I also compared all 3 possible Solver answers: "This game is winnable.", "This game cannot be won." and "Unable to determine if this game is winnable.". I then chosen a pixel that is different for the winnable text. Checked its RGB values for each text and created a condition that only uses green RGB value of that pixel (because it's enough). The pixel I chosen is marked red in this image (in the first text):
+
+![solver_texts](https://user-images.githubusercontent.com/24587734/81459326-df8a7c80-918e-11ea-84f2-fbce83cc2c39.png)
+
+So the script checks a pixel to see if the game is winnable. If it's not, it makes a new deal. There's no option to skip that check because in my opinion it's a waste of time to wait for a sequence only to later realise it couldn't be won.
